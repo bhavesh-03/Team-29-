@@ -28,6 +28,9 @@ const productSchema = new mongoose.Schema(
         "Other",
       ],
     },
+    description: {
+      type: String,
+    },
     quantity: {
       type: Number,
       min: 0, // Ensuring that quantity cannot be negative

@@ -11,10 +11,12 @@ import Footer from './components/Footer.jsx';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate persistor={persistor} loading={null}>
-      <div className=''>
-        <App />
-      <Footer className="mt-auto mb-0 pb-0" />
-      </div>
+      <div className="flex flex-col min-h-screen">
+      <main className="flex-grow">
+        <App/>
+      </main>
+      <Footer />
+    </div>
       
     </PersistGate>
   </Provider>

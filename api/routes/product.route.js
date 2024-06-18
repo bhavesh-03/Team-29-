@@ -5,6 +5,8 @@ import { uploadProduct } from '../controllers/uploadProduct.js';
 const router = express.Router();
 import cloudinary from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
 
 const generateSKU = (category, shape, colour, size) => {
@@ -218,5 +220,91 @@ router.get('/approved-superadmin', async (req, res) => {
   }
 });
 
+router.post('/send-email', async (req, res) => {
+  const { buyerName, buyerEmail, queryDetails } = req.body;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host:'smtp.gmail.com',
+    port:'587',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+  from: `${buyerEmail}`,
+  to: 'jpmmss.supera@gmail.com',
+  subject: `New ORDER FROM ${buyerName}`,
+  html: `
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+          }
+          .container {
+            margin: 0 auto;
+            padding: 20px;
+            max-width: 600px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+          }
+          .header {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+          }
+          .details {
+            margin-bottom: 20px;
+          }
+          .details p {
+            margin: 5px 0;
+          }
+          .query-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+          }
+          .query-item p {
+            margin: 5px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">New Query from ${buyerName}</div>
+          <div class="details">
+            <p><strong>Buyer Name:</strong> ${buyerName}</p>
+            <p><strong>Buyer Email:</strong> ${buyerEmail}</p>
+          </div>
+          <div class="query-details">
+            ${queryDetails.map(item => `
+              <div class="query-item">
+                <p><strong>Item Name:</strong> ${item.itemname}</p>
+                <p><strong>Quantity:</strong> ${item.quantity}</p>
+                <p><strong>SKU ID:</strong> ${item.sku_id}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </body>
+    </html>
+  `,
+};
+
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).send('Mail sent successfully');
+  } catch (error) {
+    res.status(500).send('Error sending mail');
+  }
+});
 
 export default router;

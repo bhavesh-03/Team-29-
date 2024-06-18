@@ -28,7 +28,7 @@ export default function App() {
         <Route path='/sign-in' element={<SignIn />} />
         <Route path='/sign-up' element={<SignUp />} />
         
-        <Route element={<PrivateRoute allowedRoles={['seller', 'subadmin','superadmin']} />}>
+        <Route element={<PrivateRoute allowedRoles={['seller', 'subadmin','superadmin','buyer']} />}>
           <Route path='/profile' element={<Profile />} />
           <Route path='/upload' element={<ImageUploadForm />} />
         </Route>
