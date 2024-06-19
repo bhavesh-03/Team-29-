@@ -1,13 +1,10 @@
 
 import express from 'express';
 import Product from '../models/product.model.js'; 
-import { uploadProduct } from '../controllers/uploadProduct.js';
 const router = express.Router();
-import cloudinary from '../utils/cloudinary.js';
-import upload from '../utils/multer.js';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-
+import multer from 'multer';
 
 const generateSKU = (category, shape, colour, size) => {
   const categoryCode = category.split(' ').map(word => word[0]).join('').toUpperCase();
@@ -185,12 +182,32 @@ router.put('/:sku_id/quantity', async (req, res) => {
 });
 
 
-// This is remaining: can be done with cloudinary : 
-router.post("/upload", upload.single("image"), async (req, res) => {
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+
+router.post('/upload-image', upload.none(), async (req, res) => {
+  try {
+    const { category, image_url } = req.body;
+
   
+    if (!category || !image_url) {
+      return res.status(400).json({ error: 'Category and image_url are required' });
+    }
 
+    // Create new product instance
+    const product = new Product({ category, image_url });
+
+    // Save product to MongoDB
+    await product.save();
+
+    console.log('Product uploaded:', product);
+    res.status(201).json({ message: 'Product uploaded successfully' });
+  } catch (error) {
+    console.error('Error uploading product:', error);
+    res.status(500).json({ error: 'Failed to upload product' });
+  }
 });
-
 
 
 // approved by superadmin

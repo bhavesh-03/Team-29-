@@ -7,6 +7,11 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
 import productRoutes from './routes/product.route.js';
+import { v2 as cloudinary } from 'cloudinary';
+
+
+
+
 
 dotenv.config();
 
@@ -40,6 +45,14 @@ app.use(cookieParser());
 app.listen(3000, () => {
   console.log('Server listening on port 3000');
 });
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+
 
 // Define routes
 app.use('/api/user', userRoutes);
