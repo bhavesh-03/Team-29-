@@ -42,6 +42,9 @@ const productSchema = new mongoose.Schema(
     image_url: {
       type: String,
     },
+    seller_id: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
   },
   { timestamps: true }
 );

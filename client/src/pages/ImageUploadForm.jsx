@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { current } from '@reduxjs/toolkit';
 
 const ImageUploadForm = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -11,7 +13,10 @@ const ImageUploadForm = () => {
   const [isUploading, setIsUploading] = useState(false);
 
   const videoRef = useRef();
-
+  const { currentUser } = useSelector((state) => state.user);
+  const sellerId = currentUser ? currentUser._id : null; // Adjust according to your state structure
+  // console.log(currentUser._id) ;
+  // console.log(currentUser)
   const fileSelectedHandler = (event) => {
     const file = event.target.files[0];
 
@@ -69,6 +74,10 @@ const ImageUploadForm = () => {
       toast.error('Please select a category!');
       return;
     }
+    if (!sellerId) {
+      toast.error('Seller ID is missing!');
+      return;
+    }
 
     if (isUploading) {
       toast.info('Image is already being uploaded. Please wait.');
@@ -95,9 +104,9 @@ const ImageUploadForm = () => {
       const data = await response.json();
       const imageUrl = data.secure_url; // This is the URL of the uploaded image on Cloudinary
 
-      // Now save `imageUrl` and `category` to your backend
-      const uploadData = { category, image_url: imageUrl };
-
+      // Now save `imageUrl`, `category`, and `seller_id` to your backend
+      const uploadData = { category, image_url: imageUrl, seller_id: sellerId };
+      console.log("upload data", uploadData)
       const saveResponse = await axios.post('http://localhost:3000/api/products/upload-image', uploadData);
       console.log(saveResponse.data);
       toast.success('Image uploaded successfully!');
@@ -113,7 +122,7 @@ const ImageUploadForm = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto mt-8 p-6  mb-8 border border-gray-300 rounded-lg bg-gray-100 shadow-md md:flex">
+    <div className="max-w-6xl mx-auto mt-8 p-6 mb-8 border border-gray-300 rounded-lg bg-gray-100 shadow-md md:flex">
       <ToastContainer />
       {/* Left side - Instructions */}
       <div className="flex-1 pr-4">

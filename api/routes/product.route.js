@@ -6,14 +6,14 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import multer from 'multer';
 
-const generateSKU = (category, shape, colour, size) => {
-  const categoryCode = category.split(' ').map(word => word[0]).join('').toUpperCase();
-  const shapeCode = shape.substring(0, 3).toUpperCase();
-  const colourCode = colour.substring(0, 3).toUpperCase();
-  const sizeCode = size.replace(/\s+/g, '').toUpperCase();
+// const generateSKU = (category, shape, colour, size) => {
+//   const categoryCode = category.split(' ').map(word => word[0]).join('').toUpperCase();
+//   const shapeCode = shape.substring(0, 3).toUpperCase();
+//   const colourCode = colour.substring(0, 3).toUpperCase();
+//   const sizeCode = size.replace(/\s+/g, '').toUpperCase();
 
-  return `${categoryCode}-${shapeCode}-${colourCode}-${sizeCode}`;
-};
+//   return `${categoryCode}-${shapeCode}-${colourCode}-${sizeCode}`;
+// };
 
 router.get('/get-subadmin-product', async (req, res) => {
   try {
@@ -27,25 +27,79 @@ router.get('/get-subadmin-product', async (req, res) => {
 
 
 
-//  subadmin product detail update
-router.put('/:productId/update-details', async (req, res) => {
+// //  subadmin product detail update
+// router.put('/:productId/update', async (req, res) => {
+//   try {
+//     const { productId } = req.params;
+//     const { name, shape, color, description } = req.body;
+
+//     // Validate ObjectId
+//     if (!ObjectId.isValid(productId)) {
+//       return res.status(400).json({ error: 'Invalid product ID' });
+//     }
+
+//     // Find the product by ID and update its details
+//     const updatedProduct = await Product.findByIdAndUpdate(
+//       productId,
+//       { name, shape, color, description },
+//       { new: true } // To return the updated document
+//     );
+
+//     if (!updatedProduct) {
+//       return res.status(404).json({ error: 'Product not found' });
+//     }
+
+//     res.status(200).json({ message: 'Product updated successfully', product: updatedProduct });
+//   } catch (error) {
+//     console.error('Error updating product:', error.message);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+
+
+// Function to generate SKU ID
+const generateSKU = (category, shape, colour) => {
+  const categoryCode = category.split(' ').map(word => word[0]).join('').toUpperCase();
+  const shapeCode = shape.substring(0, 3).toUpperCase();
+  const colourCode = colour.substring(0, 3).toUpperCase();
+  return `${categoryCode}-${shapeCode}-${colourCode}`;
+};
+
+// Route to accept a product and update details
+router.put('/:productId/accept', async (req, res) => {
   try {
     const { productId } = req.params;
-    const { name, type, colour, size, shape, category } = req.body;
+    const { name, shape, colour, description } = req.body;
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      productId,
-      { name, type, colour, size, shape, category },
-      { new: true, runValidators: true }
-    );
+    // Validate inputs (you may want more robust validation here)
+    if (!name || !shape || !colour || !description) {
+      console.log("Fill all fields");
+      return res.status(400).json({ error: 'Please provide all required fields' });
+    }
 
-    if (!updatedProduct) {
+    // Find the existing product
+    const product = await Product.findById(productId);
+    if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    res.status(200).json(updatedProduct);
+    // Generate SKU ID
+    const sku_id = generateSKU(product.category, shape, colour);
+
+    // Update product details
+    product.name = name;
+    product.shape = shape;
+    product.colour = colour;
+    product.description = description;
+    product.sku_id = sku_id;
+    product.approved = true;
+
+    const updatedProduct = await product.save();
+    res.status(200).json({ message: 'Product details updated and accepted successfully', product: updatedProduct });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error accepting product:', error.message);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -67,48 +121,6 @@ router.delete('/:productId/delete', async (req, res) => {
   }
 });
 
-// accept subadmin product and then update sku_id 
-router.put('/:productId/accept', async (req, res) => {
-  try {
-    const { productId } = req.params;
-
-    // Find the product by ID
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    // Ensure all necessary fields are filled
-    if (!product.name || !product.type || !product.colour || !product.size || !product.shape || !product.category ) {
-      return res.status(400).json({ error: 'All product details must be filled before acceptance' });
-    }
-
-    // Generate SKU ID
-    const sku_id = generateSKU(product.category, product.shape, product.colour, product.size);
-
-    // Check if a product with the same SKU ID already exists
-    const existingProduct = await Product.findOne({ sku_id });
-
-    if (existingProduct) {
-      // Update the quantity of the existing product
-      existingProduct.quantity += 1;
-      await existingProduct.save();
-
-      // Remove the original product since it has been merged into the existing one
-      await Product.findByIdAndDelete(productId);
-
-      return res.status(200).json({ message: 'Product accepted and quantity updated', existingProduct });
-    } else {
-      // Update the product with the generated SKU ID
-      product.sku_id = sku_id;
-      await product.save();
-
-      return res.status(200).json({ message: 'Product accepted and SKU ID generated', product });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 router.get('/get-admin-products', async (req, res) => {
   try {
@@ -188,20 +200,21 @@ const upload = multer({ storage });
 
 router.post('/upload-image', upload.none(), async (req, res) => {
   try {
-    const { category, image_url } = req.body;
-
-  
-    if (!category || !image_url) {
-      return res.status(400).json({ error: 'Category and image_url are required' });
+    const { category, image_url, seller_id } = req.body;
+    console.log(seller_id);
+    console.log(image_url);
+    console.log(category);
+    if (!category || !image_url || !seller_id) {
+      return res.status(400).json({ error: 'Category, image_url, and seller_id are required' });
     }
 
     // Create new product instance
-    const product = new Product({ category, image_url });
-
+    const product = new Product({ category, image_url, seller_id });
+    console.log("Product in backend",product);
     // Save product to MongoDB
     await product.save();
 
-    console.log('Product uploaded:', product);
+    // console.log('Product uploaded:', product);
     res.status(201).json({ message: 'Product uploaded successfully' });
   } catch (error) {
     console.error('Error uploading product:', error);
