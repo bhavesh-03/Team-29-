@@ -20,6 +20,7 @@ const ProductsList = () => {
         const response = await axios.get('http://localhost:3000/api/products/get-subadmin-product');
         setProducts(response.data); // Assuming response.data directly contains the array of products
       } catch (error) {
+        toast.error('Error fetching products');
         console.error('Error fetching products:', error);
       }
     };

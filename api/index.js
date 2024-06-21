@@ -7,7 +7,9 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import cors from 'cors';
 import productRoutes from './routes/product.route.js';
+import InventoryRoutes from './routes/inventory.route.js';
 import { v2 as cloudinary } from 'cloudinary';
+import Inventory from './models/invetory.model.js';
 
 
 dotenv.config();
@@ -55,6 +57,7 @@ cloudinary.config({
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/inventory', InventoryRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

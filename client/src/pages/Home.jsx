@@ -10,7 +10,7 @@ export default function Home() {
   const[category,setCategory]=React.useState("All")
   return (
     <>
-      <Exploremenu category={category} setCategory={setCategory}/>
+      <Exploremenu  className="flex justify-center" category={category} setCategory={setCategory}/>
       <ItemDisplay category={category}/>
     </>
   );

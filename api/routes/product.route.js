@@ -1,6 +1,7 @@
 
 import express from 'express';
 import Product from '../models/product.model.js'; 
+import Inventory from "../models/invetory.model.js"
 const router = express.Router();
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
@@ -93,7 +94,7 @@ router.put('/:productId/accept', async (req, res) => {
     product.colour = colour;
     product.description = description;
     product.sku_id = sku_id;
-    product.approved = true;
+    product.approved = false;
 
     const updatedProduct = await product.save();
     res.status(200).json({ message: 'Product details updated and accepted successfully', product: updatedProduct });
@@ -122,76 +123,119 @@ router.delete('/:productId/delete', async (req, res) => {
 });
 
 
-router.get('/get-admin-products', async (req, res) => {
+router.get('/get-superadmin-products', async (req, res) => {
   try {
     const products = await Product.find({
-      sku_id: { $nin: [null, ''] },
-      name: { $nin: [null, ''] },
-      type: { $nin: [null, ''] },
-      colour: { $nin: [null, ''] },
-      size: { $nin: [null, ''] },
-      shape: { $nin: [null, ''] },
-      category: { $nin: [null, ''] },
-      quantity: { $nin: [null, ''] },
-      description: { $nin: [null, ''] },
-      imageUrl: { $nin: [null, ''] },
+      name: { $ne: null },
+      colour: { $ne: null },
+      shape: { $ne: null },
+      category: { $ne: null },
+      description: { $ne: null },
+      image_url: { $ne: null },
+      seller_id: { $ne: null },
+      approved: { $in: [null, false] }, 
     });
-
-    res.status(200).json(products);
+    res.json(products);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: 'Error fetching products', error });
   }
 });
 
 
 
-router.delete('/:sku_id/delpro-superadmin', async (req, res) => {
-  try {
-    const { sku_id } = req.params;
 
-    // Find and delete the product by sku_id
-    const product = await Product.findOneAndDelete({ sku_id });
+// Approve Product Route
+router.put('/:productId/approve', async (req, res) => {
+  const { productId } = req.params;
+
+  try {
+    // Find the product to be approved
+    const product = await Product.findById(productId);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    res.status(200).json({ message: 'Product deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
-  }
-});
-
-// Update product quantity by superadmin
-router.put('/:sku_id/quantity', async (req, res) => {
-  try {
-    const { sku_id } = req.params;
-    const { quantityChange } = req.body;
-
-    if (typeof quantityChange !== 'number') {
-      return res.status(400).json({ message: 'Quantity change must be a number' });
-    } 
-    // Find the product by sku_id
-    const product = await Product.findOne({ sku_id });
-
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    // Update the product quantity
-    product.quantity += quantityChange;
-
-    if (product.quantity < 0) {
-      return res.status(400).json({ message: 'Quantity cannot be negative' });
-    }
-
+    // Mark the product as approved
+    product.approved = true;
     await product.save();
 
-    res.status(200).json({ message: 'Product quantity updated successfully', product });
+    // Find or create the inventory entry for the SKU
+    const inventory = await Inventory.findOneAndUpdate(
+      { sku_id: product.sku_id },
+      {
+        $set: {
+          name: product.name,
+          shape: product.shape,
+          color: product.colour,
+          description: product.description,
+          image_url: product.image_url,
+          category: product.category,
+          availability: true,
+        },
+        $inc: { quantity: 1 }, // Increase the quantity by 1
+      },
+      { new: true, upsert: true } // Create a new entry if it doesn't exist
+    );
+
+    res.json({ message: 'Product approved and inventory updated', product, inventory });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    console.error('Error approving product:', error);
+    res.status(500).json({ message: 'Error approving product', error });
   }
 });
+
+
+
+
+
+// router.delete('/:sku_id/delpro-superadmin', async (req, res) => {
+//   try {
+//     const { sku_id } = req.params;
+
+//     // Find and delete the product by sku_id
+//     const product = await Product.findOneAndDelete({ sku_id });
+
+//     if (!product) {
+//       return res.status(404).json({ message: 'Product not found' });
+//     }
+
+//     res.status(200).json({ message: 'Product deleted successfully' });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error', error });
+//   }
+// });
+
+// // Update product quantity by superadmin
+// router.put('/:sku_id/quantity', async (req, res) => {
+//   try {
+//     const { sku_id } = req.params;
+//     const { quantityChange } = req.body;
+
+//     if (typeof quantityChange !== 'number') {
+//       return res.status(400).json({ message: 'Quantity change must be a number' });
+//     } 
+//     // Find the product by sku_id
+//     const product = await Product.findOne({ sku_id });
+
+//     if (!product) {
+//       return res.status(404).json({ message: 'Product not found' });
+//     }
+
+//     // Update the product quantity
+//     product.quantity += quantityChange;
+
+//     if (product.quantity < 0) {
+//       return res.status(400).json({ message: 'Quantity cannot be negative' });
+//     }
+
+//     await product.save();
+
+//     res.status(200).json({ message: 'Product quantity updated successfully', product });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error', error });
+//   }
+// });
 
 
 const storage = multer.memoryStorage();

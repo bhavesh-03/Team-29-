@@ -112,7 +112,7 @@ const SingleItem = ({ id, name, description, image, category,sku_id }) => {
         </div>
         <div className="mt-4">
           <button
-            className="bg-[#E9EAEB] hover:scale-105 hover:shadow-none focus:scale-105 focus:shadow-none active:scale-100s w-full text-black font-bold py-2 px-4 rounded"
+            className="btn btn-outline hover:shadow-none focus:scale-105 focus:shadow-none active:scale-100s w-full text-black font-bold py-2 px-4 rounded"
             onClick={handleAddToCart}
           >
             Add to Cart

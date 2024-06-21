@@ -44,7 +44,7 @@ export default function SignIn() {
         } else if(userRole === 'subadmin'){
           navigate('/subadmin') ;
         }else if(userRole === 'superadmin'){
-          navigate('/superadmin') ;
+          navigate('/superadmin-SubAdminPanel') ;
         }else {
           navigate('/');
         }

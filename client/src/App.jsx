@@ -8,11 +8,12 @@ import Header from './components/Header';
 import PrivateRoute from './components/PrivateRoute';
 import { Toaster } from 'react-hot-toast';
 import Admin from './pages/Admin';
-import SuperAdmin from './pages/SuperAdmin';
+import SuperAdminSubadminPanel from './pages/superadmin-subadmin-panel';
+import SuperAdminProductPanel from './pages/Superadmin-product-panel';
 import RedirectOnLogin from './pages/RedirectOnLogin'
 import ImageUploadForm from './pages/ImageUploadForm';
-import SubAdminComplete from './pages/SubAdminComplete';
-
+import SubAdminProducts from './pages/SubAdmin-products';
+import InventoryPage from './pages/Inventory'
 
 export default function App() {
   return (
@@ -34,13 +35,18 @@ export default function App() {
         </Route>
 
         <Route element={<PrivateRoute allowedRoles={['subadmin', 'superadmin']} />}>
-          <Route path='/admin' element={<Admin />} />
-          <Route path='/subadmin' element={<SubAdminComplete />} />
-          
+        {/* For subadmin to see users -- yet to complete */}
+          <Route path='/admin' element={<Admin />} /> 
+          <Route path='/subadmin' element={<SubAdminProducts />} />
         </Route>
 
         <Route element={<PrivateRoute allowedRoles={['superadmin']} />}>
-          <Route path='/superadmin' element={<SuperAdmin />} />
+        {/* For superadmin to manage subadmin (CRUD) */}
+          <Route path='/superadmin-SubAdminPanel' element={<SuperAdminSubadminPanel />} />
+        {/* For superadmin to manage aproval or rejection of products by superadmin  */}
+          <Route path='/superadmin-ProductPanel' element={<SuperAdminProductPanel />} />
+        {/* for  subadmin to manage inventory that will be seen by the buyers */}
+        <Route path='/inventory' element={<InventoryPage />} />
 
         </Route>
       </Routes>

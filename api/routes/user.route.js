@@ -7,7 +7,7 @@ import {
 import { verifyToken,verifySuperAdmin } from '../utils/verifyUser.js';
 import User from '../models/user.model.js'; 
 import multer from 'multer';
-
+import bcrypt from 'bcryptjs';
 const router = express.Router();
 
 router.get('/', test);
@@ -27,14 +27,14 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// Route to get all users with role 'admin'
-router.get('/admins', async (req, res) => {
+// Route to get all subadmin for superadmin dashboar
+router.get('/sub-admins', async (req, res) => {
   try {
-    const admins = await User.find({ role: 'admin' });
-    res.status(200).json(admins);
+    const admins = await User.find({ role: 'subadmin' });
+    res.json(admins);
   } catch (error) {
-    console.error('Error fetching admins:', error);
-    res.status(500).json({ message: 'Error fetching admins', error: error.message });
+    console.error('Error fetching admins', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -87,7 +87,7 @@ router.post('/superadmin/create-subadmin', async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      role: 'admin', // Assign the subadmin role
+      role: 'subadmin', // Assign the subadmin role
     });
 
     // Save the new user

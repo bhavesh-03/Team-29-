@@ -15,7 +15,7 @@ export default function ItemDisplay({ category }) {
     // Fetch products from the API
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/products/approved-superadmin');
+        const response = await fetch('http://localhost:3000/api/inventory/available-products');
         const data = await response.json();
         setProducts(data);
       } catch (error) {

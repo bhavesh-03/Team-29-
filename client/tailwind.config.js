@@ -10,6 +10,7 @@ module.exports = {
   },
   plugins: [
     require('daisyui'), // Include Daisy UI plugin
+    
   ],
   daisyui: {
     themes: ['light'], // Set Daisy UI to use only the light theme

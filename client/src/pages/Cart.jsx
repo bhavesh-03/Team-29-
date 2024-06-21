@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addToCart, removeFromCart, updateQuantity, clearCart } from '../redux/cart/cartSlice';
 import toast from 'react-hot-toast';
-import emptyCartImage from '../assets/Cart/emptycart.png'
+import emptyCartImage from '../assets/Cart/Empty Cart.png'
 import { useNavigate } from 'react-router-dom';
 
 const ShoppingCart = () => {
@@ -57,11 +57,11 @@ const ShoppingCart = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="bg-white shadow-inner rounded-lg p-4">
+      <div className="bg-white  rounded-lg p-4">
         <h2 className="text-2xl font-bold mb-4">Shopping Cart</h2>
         {cart.length === 0 ? (
           <div className="flex flex-col items-center">
-            <img src={emptyCartImage} alt="Empty Cart" className="w-48 mb-4" />
+            <img src={emptyCartImage} alt="Empty Cart" className="w-64 mb-4" />
             <p className="text-3xl text-black">Your cart is empty</p>
             <p className='text-xl from-neutral-600'>Looks like you have not added anything to you cart. Go
 ahead & explore top categories.</p>
@@ -88,19 +88,6 @@ ahead & explore top categories.</p>
                     Remove
                   </button>
                   <button
-                    className="btn btn-outline btn-sm"
-                    onClick={() => dispatch(updateQuantity({ id: item.id, quantity: item.quantity + 1 }))}
-                  >
-                    +
-                  </button>
-                  <input
-                    type="number"
-                    value={item.quantity}
-                    min="1"
-                    onChange={(e) => handleQuantityChange(item.id, Number(e.target.value))}
-                    className="mx-2 w-16 text-center border rounded"
-                  />
-                  <button
                     className="btn btn-outline btn-sm ml-1"
                     onClick={() => {
                       if (item.quantity > 1) {
@@ -110,6 +97,21 @@ ahead & explore top categories.</p>
                   >
                     -
                   </button>
+                  
+                  <input
+                    type="number"
+                    value={item.quantity}
+                    min="1"
+                    onChange={(e) => handleQuantityChange(item.id, Number(e.target.value))}
+                    className="mx-2 w-16 text-center border rounded"
+                  />
+                  <button
+                    className="btn btn-outline btn-sm"
+                    onClick={() => dispatch(updateQuantity({ id: item.id, quantity: item.quantity + 1 }))}
+                  >
+                    +
+                  </button>
+                  
                 </div>
               </li>
             ))}
