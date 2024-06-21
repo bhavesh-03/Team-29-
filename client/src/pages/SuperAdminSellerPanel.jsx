@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-
-const SuperAdminDashboard = () => {
-  const [admins, setAdmins] = useState([]);
-  const [editModeAdminId, setEditModeAdminId] = useState(null); // Track admin id in edit mode
+const SuperAdminSellerPanel = () => {
+  const [sellers, setSellers] = useState([]);
+  const [editModeSellerId, setEditModeSellerId] = useState(null); // Track seller id in edit mode
   const [updatedUsername, setUpdatedUsername] = useState('');
   const [updatedEmail, setUpdatedEmail] = useState('');
   const [newUsername, setNewUsername] = useState('');
@@ -13,70 +12,70 @@ const SuperAdminDashboard = () => {
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    fetchAdmins();
+    fetchSellers();
   }, []);
 
-  const fetchAdmins = async () => {
+  const fetchSellers = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/user/sub-admins');
-      setAdmins(response.data);
+      const response = await axios.get('http://localhost:3000/api/user/get-sellers');
+      setSellers(response.data);
     } catch (error) {
-      console.error('Error fetching admins', error);
-      toast.error('Error fetching admins');
+      console.error('Error fetching sellers', error);
+      toast.error('Error fetching sellers');
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/user/admin/delete/${id}`);
-      setAdmins(admins.filter(admin => admin._id !== id));
-      toast.success('Admin deleted successfully');
+      await axios.delete(`http://localhost:3000/api/user/seller/delete/${id}`);
+      setSellers(sellers.filter(seller => seller._id !== id));
+      toast.success('Seller deleted successfully');
     } catch (error) {
-      console.error('Error deleting admin', error);
-      toast.error('Error deleting admin');
+      console.error('Error deleting seller', error);
+      toast.error('Error deleting seller');
     }
   };
 
   const handleUpdate = async (id) => {
     try {
-      const response = await axios.put(`http://localhost:3000/api/user/admin/update/${id}`, {
+      const response = await axios.put(`http://localhost:3000/api/user/seller/update/${id}`, {
         username: updatedUsername,
         email: updatedEmail,
       });
-      setAdmins(admins.map(admin => (admin._id === id ? response.data : admin)));
-      toast.success('Admin updated successfully');
+      setSellers(sellers.map(seller => (seller._id === id ? response.data : seller)));
+      toast.success('Seller updated successfully');
       exitEditMode(); // Exit edit mode after successful update
     } catch (error) {
-      console.error('Error updating admin', error);
-      toast.error('Error updating admin');
+      console.error('Error updating seller', error);
+      toast.error('Error updating seller');
     }
   };
 
   const handleCreate = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/api/user/superadmin/create-subadmin', {
+      const response = await axios.post('http://localhost:3000/api/user/superadmin/create-seller', {
         username: newUsername,
         email: newEmail,
         password: newPassword,
       });
-      setAdmins([...admins, response.data]);
-      toast.success('Admin created successfully');
+      setSellers([...sellers, response.data]);
+      toast.success('Seller created successfully');
       closeCreateModal();
-      fetchAdmins(); // Fetch updated list of admins after creating a new one
+      fetchSellers(); // Fetch updated list of sellers after creating a new one
     } catch (error) {
-      console.error('Error creating admin', error);
-      toast.error('Error creating admin');
+      console.error('Error creating seller', error);
+      toast.error('Error creating seller');
     }
   };
 
   const enterEditMode = (id, currentUsername, currentEmail) => {
-    setEditModeAdminId(id);
+    setEditModeSellerId(id);
     setUpdatedUsername(currentUsername);
     setUpdatedEmail(currentEmail);
   };
 
   const exitEditMode = () => {
-    setEditModeAdminId(null);
+    setEditModeSellerId(null);
     setUpdatedUsername('');
     setUpdatedEmail('');
   };
@@ -94,13 +93,13 @@ const SuperAdminDashboard = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Sub-Admin Control Panel</h1>
+      <h1 className="text-2xl font-bold mb-4">Seller Control Panel</h1>
 
-      {/* Create New Admin Modal */}
+      {/* Create New Seller Modal */}
       {isCreating && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
           <div className="bg-white w-full max-w-md p-6 rounded-lg">
-            <h2 className="text-lg font-semibold mb-4">Create New Subadmin</h2>
+            <h2 className="text-lg font-semibold mb-4">Create New Seller</h2>
             <div className="mb-4">
               <input
                 type="text"
@@ -151,7 +150,7 @@ const SuperAdminDashboard = () => {
           onClick={openCreateModal}
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2"
         >
-          Create New Subadmin
+          Create New Seller
         </button>
       </div>
 
@@ -166,10 +165,10 @@ const SuperAdminDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {admins.map(admin => (
-              <tr key={admin._id} className="border-b border-gray-200 hover:bg-gray-50">
+            {sellers.map(seller => (
+              <tr key={seller._id} className="border-b border-gray-200 hover:bg-gray-50">
                 <td className="p-4">
-                  {editModeAdminId === admin._id ? (
+                  {editModeSellerId === seller._id ? (
                     <input
                       type="text"
                       value={updatedUsername}
@@ -178,11 +177,11 @@ const SuperAdminDashboard = () => {
                       placeholder="New Username"
                     />
                   ) : (
-                    admin.username
+                    seller.username
                   )}
                 </td>
                 <td className="p-4">
-                  {editModeAdminId === admin._id ? (
+                  {editModeSellerId === seller._id ? (
                     <input
                       type="email"
                       value={updatedEmail}
@@ -191,17 +190,17 @@ const SuperAdminDashboard = () => {
                       placeholder="New Email"
                     />
                   ) : (
-                    admin.email
+                    seller.email
                   )}
                 </td>
                 <td className="p-4">
-                  <img src={admin.profilePicture} alt={admin.username} className="w-12 h-12 rounded-full object-cover" />
+                  <img src={seller.profilePicture} alt={seller.username} className="w-12 h-12 rounded-full object-cover" />
                 </td>
                 <td className="p-4 flex flex-wrap gap-5">
-                  {editModeAdminId === admin._id ? (
+                  {editModeSellerId === seller._id ? (
                     <div className="flex items-center space-x-2 ">
                       <button
-                        onClick={() => handleUpdate(admin._id)}
+                        onClick={() => handleUpdate(seller._id)}
                         className="bg-blue-500 text-white px-3 py-1 rounded"
                       >
                         Save
@@ -215,14 +214,14 @@ const SuperAdminDashboard = () => {
                     </div>
                   ) : (
                     <button
-                      onClick={() => enterEditMode(admin._id, admin.username, admin.email)}
+                      onClick={() => enterEditMode(seller._id, seller.username, seller.email)}
                       className="bg-blue-500 text-white px-3 py-1 rounded"
                     >
                       Edit
                     </button>
                   )}
                   <button
-                    onClick={() => handleDelete(admin._id)}
+                    onClick={() => handleDelete(seller._id)}
                     className="bg-red-500 text-white px-3 py-1 rounded ml-2"
                   >
                     Delete
@@ -235,6 +234,6 @@ const SuperAdminDashboard = () => {
       </div>
     </div>
   );
-};
+}
 
-export default SuperAdminDashboard;
+export default SuperAdminSellerPanel

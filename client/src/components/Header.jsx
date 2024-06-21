@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import logoImage from '../assets/Homeassets/logo.png'; // Rename logo to logoImage to avoid conflict with logo variable name
 
+
 export default function Header() {
   const { currentUser } = useSelector((state) => state.user);
   const cart = useSelector((state) => state.cart);
@@ -40,15 +41,19 @@ export default function Header() {
             )}
             {currentUser && currentUser.role === 'superadmin' && (
               <>
-                <Link to='/superadmin-SubAdminPanel' className={`hover:bg-slate-200 rounded-lg px-2 py-1 ${location.pathname === '/superadmin-SubAdminPanel' ? 'bg-slate-200' : ''}`}>
+                <Link to='/superadmin-SubAdminPanel' className={`hover:bg-slate-200 rounded-lg flex text-center px-2 py-1 ${location.pathname === '/superadmin-SubAdminPanel' ? 'bg-slate-200' : ''}`}>
                   <li className='ml-2 mr-2'>Manage Subadmins</li>
                 </Link>
-                <Link to='/superadmin-ProductPanel' className={`hover:bg-slate-200 rounded-lg px-2 py-1 ${location.pathname === '/superadmin-ProductPanel' ? 'bg-slate-200' : ''}`}>
+                <Link to='/superadmin-SellerPanel' className={`hover:bg-slate-200 flex text-center rounded-lg px-2 py-1 ${location.pathname === '/superadmin-SellerPanel' ? 'bg-slate-200' : ''}`}>
+                  <li className='ml-2 mr-2'>Manage Sellers</li>
+                </Link>
+                <Link to='/superadmin-ProductPanel' className={`hover:bg-slate-200 flex text-center rounded-lg px-2 py-1 ${location.pathname === '/superadmin-ProductPanel' ? 'bg-slate-200' : ''}`}>
                   <li className='ml-2 mr-2'>Manage Products</li>
                 </Link>
-                <Link to='/inventory' className={`hover:bg-slate-200 rounded-lg px-2 py-1 ${location.pathname === '/inventory' ? 'bg-slate-200' : ''}`}>
+                <Link to='/inventory' className={`hover:bg-slate-200 flex text-center rounded-lg px-2 py-1 ${location.pathname === '/inventory' ? 'bg-slate-200' : ''}`}>
                   <li className='ml-2 mr-2'>Inventory Panel</li>
                 </Link>
+                
               </>
             )}
             {/* Cart link only shown if currentUser role is not superadmin */}

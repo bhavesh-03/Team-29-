@@ -14,6 +14,7 @@ import RedirectOnLogin from './pages/RedirectOnLogin'
 import ImageUploadForm from './pages/ImageUploadForm';
 import SubAdminProducts from './pages/SubAdmin-products';
 import InventoryPage from './pages/Inventory'
+import SuperAdminSellerPanel from './pages/SuperAdminSellerPanel'
 
 export default function App() {
   return (
@@ -47,6 +48,8 @@ export default function App() {
           <Route path='/superadmin-ProductPanel' element={<SuperAdminProductPanel />} />
         {/* for  subadmin to manage inventory that will be seen by the buyers */}
         <Route path='/inventory' element={<InventoryPage />} />
+        {/* for  subadmin to manage inventory that will be seen by the buyers */}
+        <Route path='/superadmin-SellerPanel' element={<SuperAdminSellerPanel />} />
 
         </Route>
       </Routes>
