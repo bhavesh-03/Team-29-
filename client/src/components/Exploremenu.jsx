@@ -10,7 +10,8 @@ import othersImage from '../assets/Homeassets/others.jpeg';
 
 export default function Exploremenu({ category, setCategory }) {
   const categories = [
-    {
+    {  
+      
       name: 'All',
       image: Alllogo
     },
